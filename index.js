@@ -15,8 +15,7 @@ async function readExclusionFile(filePath) {
       .map((line) => line.trim())
       .filter(Boolean);
   } catch (error) {
-    console.error("Error al leer el archivo de exclusión:", error);
-    return [];
+    throw error;
   }
 }
 
@@ -51,12 +50,16 @@ async function copyDirExcluding(src, dest, exclude) {
 // Verificar que se hayan proporcionado suficientes argumentos
 if (srcDir && destDir) {
   // Leer el archivo .exclude
-  readExclusionFile(".exclude").then((exclude) => {
-    // Ejecutar la función de copia
-    copyDirExcluding(srcDir, destDir, exclude)
-      .then(() => console.log("Copia completada."))
-      .catch((err) => console.error("Error durante la copia:", err));
-  });
+  readExclusionFile(".exclude")
+    .then((exclude) => {
+      // Ejecutar la función de copia
+      copyDirExcluding(srcDir, destDir, exclude)
+        .then(() => console.log("Copia completada."))
+        .catch((err) => console.error("Error durante la copia:", err));
+    })
+    .catch((err) => {
+      console.error("Error al leer el archivo de exclusión:", err);
+    });
 } else {
   console.log(
     "Por favor, especifique las rutas de origen y destino como argumentos."
